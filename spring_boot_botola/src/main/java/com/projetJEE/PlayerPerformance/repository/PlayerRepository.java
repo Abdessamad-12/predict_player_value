@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface PlayerRepository extends JpaRepository<Players, Long> {
-
+    List<Players> findByTeam(String team);
     //all crud methode
 }

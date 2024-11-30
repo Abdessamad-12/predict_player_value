@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 import MAS from '../../Resources/images/image2.png';
 import WAC from '../../Resources/images/image3.png';
 import RsBerkaneLogo from '../../Resources/images/image1.png';
@@ -42,16 +43,21 @@ const TeamPage = () => {
       <h1 style={styles.header}>Teams of Botola Pro</h1>
       <div style={styles.teamsGrid}>
         {teams.map((team) => (
-          <div key={team.id} style={styles.teamCard}>
-           <div
-           style={{
-           ...styles.teamLogo, // La virgule est ajoutée ici
-            backgroundImage: `url(${team.image})`,
-          }}
-          ></div>
-
-            <h2 style={styles.teamName}>{team.name}</h2>
-          </div>
+          <Link
+            key={team.id}
+            to={`/team/${team.name}`}
+            style={{ textDecoration: "none" }}
+          >
+            <div style={styles.teamCard}>
+              <div
+                style={{
+                  ...styles.teamLogo,
+                  backgroundImage: `url(${team.image})`,
+                }}
+              ></div>
+              <h2 style={styles.teamName}>{team.name}</h2>
+            </div>
+          </Link>
         ))}
       </div>
     </div>

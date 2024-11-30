@@ -18,6 +18,14 @@ import csv
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 
+
+# Configurations de la base de données PostgreSQL
+DB_HOST = "localhost"
+DB_PORT = "5432"
+DB_NAME = "predictiondb"
+DB_USER = "predictiondb"
+DB_PASSWORD = "akharaz"
+
 service = Service('chromedriver.exe')
 driver = webdriver.Chrome(service=service)
 output_file = "players_data.csv"
@@ -230,6 +238,51 @@ def extract_player_info(player_url):
 
     return player_dict
 
+# Fonction pour insérer les données dans PostgreSQL
+def insert_into_postgresql(players_list):
+    try:
+        # Connexion à la base de données
+        conn = psycopg2.connect(
+            host=DB_HOST, port=DB_PORT, database=DB_NAME, user=DB_USER, password=DB_PASSWORD
+        )
+        cursor = conn.cursor()
+
+        # Requête d'insertion
+        insert_query = """
+        INSERT INTO players (
+            name, age, nationality, taille, preferred_foot, team, AER, ANT, ATT, TAC, TEC, SAV, BAL, DEF, CRE,
+            overall_rating, valeur_actuelle
+        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+
+        for player in players_list:
+            cursor.execute(insert_query, (
+                player.get('name', None),
+                player.get('age', None),
+                player.get('nationality', None),
+                player.get('taille', None),
+                player.get('preferred_foot', None),
+                player.get('team', None),
+                player.get('AER', 0.0),
+                player.get('ANT', 0.0),
+                player.get('ATT', 0.0),
+                player.get('TAC', 0.0),
+                player.get('TEC', 0.0),
+                player.get('SAV', 0.0),
+                player.get('BAL', 0.0),
+                player.get('DEF', 0.0),
+                player.get('CRE', 0.0),
+                player.get('overall_rating', 0.0),
+                player.get('valeur_actuelle', None),
+            ))
+
+        conn.commit()
+        print(f"{len(players_list)} players inserted successfully into PostgreSQL.")
+    except Exception as e:
+        print("Error inserting into PostgreSQL:", e)
+    finally:
+        cursor.close()
+        conn.close()
 
 
 # Loop through each team URL to get player URLs
@@ -245,6 +298,8 @@ for team_url in team_urls:
         player_info = extract_player_info(player_url)
         players_list.append(player_info)
         #print(f"player : {player_info}")
+# Insérer les données dans PostgreSQL
+insert_into_postgresql(players_list)
 
 print(players_list)
 all_keys = set()

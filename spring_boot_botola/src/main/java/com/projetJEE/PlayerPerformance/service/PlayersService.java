@@ -78,5 +78,10 @@ public class PlayersService {
         playerRepository.delete(player);
     }
 
+    public List<Players> getPlayersByTeam(String teamName) {
+        return playerRepository.findByTeam(teamName);
+    }
+
+
 
 }

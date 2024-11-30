@@ -68,4 +68,12 @@ public class Playerscontroller {
         return ResponseEntity.ok(savedPlayer);
     }
 
+
+    @GetMapping("/team/{teamName}")
+    public ResponseEntity<List<Players>> getPlayersByTeam(@PathVariable String teamName) {
+        List<Players> players = playersService.getPlayersByTeam(teamName);
+        return ResponseEntity.ok(players);
+    }
+
+
 }

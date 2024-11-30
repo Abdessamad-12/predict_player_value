@@ -1,66 +1,33 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import { getPlayersByTeam } from "../../api";
 
-const teams = [
-  {
-    id: 1,
-    name: 'RS Berkane',
-    logo: '/images/rsberkane.png',
-    players: [
-      { id: 101, name: 'Player 1' },
-      { id: 102, name: 'Player 2' },
-    ],
-  },
-  {
-    id: 2,
-    name: 'MAS',
-    logo: '/images/mas.png',
-    players: [
-      { id: 201, name: 'Player A' },
-      { id: 202, name: 'Player B' },
-    ],
-  },
-];
 
-const TeamDetails = (props) => {
-  const id = props.match.params.id;
-  const team = teams.find((team) => team.id === parseInt(id));
+const TeamDetail = (props) => {
+  const teamName = props.match.params.teamName; // Accès aux paramètres de l'URL
+  const [players, setPlayers] = useState([]);
+
+  useEffect(() => {
+    const fetchPlayers = async () => {
+      const data = await getPlayersByTeam(teamName);
+      setPlayers(data);
+    };
+    fetchPlayers();
+  }, [teamName]);
 
   return (
-    <div style={{ padding: '20px', textAlign: 'center' }}>
-      {team ? (
-        <div>
-          <h1>{team.name}</h1>
-          <img
-            src={team.logo}
-            alt={`${team.name} Logo`}
-            style={{ width: '150px', height: '150px' }}
-          />
-          <h2>Joueurs</h2>
-          <ul style={{ listStyleType: 'none', padding: 0 }}>
-            {team.players.map((player) => (
-              <li
-                key={player.id}
-                style={{
-                  margin: '10px 0',
-                  padding: '10px',
-                  border: '1px solid #ddd',
-                  borderRadius: '5px',
-                  maxWidth: '300px',
-                  marginLeft: 'auto',
-                  marginRight: 'auto',
-                }}
-              >
-                {player.name}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <p>Équipe introuvable !</p>
-      )}
+    <div style={{ padding: "20px" }}>
+      <h1>{teamName}</h1>
+      <h2>List of Players</h2>
+      <ul>
+        {players.map((player) => (
+          <li key={player.id}>
+            <strong>{player.name}</strong> - {player.position} -{" "}
+            <a href={`/player/${player.id}`}>View Details</a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
 
-export default withRouter(TeamDetails);
+export default TeamDetail;

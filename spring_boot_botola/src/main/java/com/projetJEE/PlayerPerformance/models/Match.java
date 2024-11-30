@@ -1,23 +1,20 @@
 package com.projetJEE.PlayerPerformance.models;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @Entity
-@NoArgsConstructor
-@Table(name = "Match of day")
+@Table(name = "matches")
 public class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @Column(name = "LeagueName")
-    private String leagueName;
-    @Column(name = "Hometeam")
-    private String hometeam;
-    @Column(name = "Teamaway")
-    private String teamaway;
+    private Long id;
+
+    private String homeTeam;
+    private String awayTeam;
+    private Integer homeScore;
+    private Integer awayScore;
+    private String matchDate;
+    private String status;
 }
