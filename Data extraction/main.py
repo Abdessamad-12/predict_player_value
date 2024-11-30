@@ -1,4 +1,6 @@
+
 from ast import parse
+import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -6,9 +8,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from bs4 import BeautifulSoup
 import time
+import psycopg2
 import requests
 import sys
 import io
+import csv
 
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -16,9 +20,13 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 service = Service('chromedriver.exe')
 driver = webdriver.Chrome(service=service)
+output_file = "players_data.csv"
+players_list = []
 
 # Navigate to the webpage
 botola_url = 'https://www.sofascore.com/fr/tournoi/football/morocco/botola-pro/937#id:65433,tab:media'
+
+
 
 def extract_teams_urls(league_url):
     team_list = []
@@ -80,24 +88,18 @@ def extract_player_info(player_url):
     """
     player_dict = {}
 
-    # Request the page and parse with BeautifulSoup
-    response = requests.get(player_url)
-    player_html = BeautifulSoup(response.text, 'html.parser')
+    driver.get(player_url)
 
-    # Extract player name from URL as a fallback (sofascore URLs often have player names)
-    player_dict['name'] = player_url.split("/")[-2].replace('-', ' ').title()
+    page_source = driver.page_source 
+    player_html = BeautifulSoup(page_source, 'html.parser')
 
-    # Extract nationality
-    nationality_div = player_html.find("div", string="Nationalité")
-    if nationality_div:
-        nationality_value = nationality_div.find_next("span")
-        if nationality_value:
-            player_dict['nationality'] = nationality_value.text.strip()
-    #team 
-    team_div = player_html.find("div", class_="Text leMLNz")
-    if team_div:
-        team = team_div.text
-        player_dict['team'] = team
+    # Extract player name 
+    
+    name = player_html.find("h2", class_= "Text cuNqBu")
+    if name:
+        name = name.text
+        
+        player_dict['name'] = name
 
     # age
     age_div = player_html.find_all("div", class_='Text beCNLk')
@@ -109,27 +111,58 @@ def extract_player_info(player_url):
             except ValueError:
                 player_dict['age'] = age_value
             break
-   
+
+    #team 
+    team_div = player_html.find("div", class_="Text leMLNz")
+    if team_div:
+        team = team_div.text
+        player_dict['team'] = team
+
+
+    #nationalite
+
+    nationality_div = player_html.find("div", string="Nationalité")
+    if nationality_div:
+        nationality_value = nationality_div.find_next("span")
+        if nationality_value:
+            player_dict['nationality'] = nationality_value.text.strip()
+
+        
+    elements = player_html.find_all("span", class_='Text VdzKr')
+    values = player_html.find_all("div", class_='Text jbniIM')
+    # Créer une liste des textes nettoyés
+    elements_text = [el.text.strip() for el in elements]
+    values_text = [val.text.strip() for val in values]
+    # Construire le dictionnaire
+    player_dict = {key: value for key, value in zip(elements_text, values_text)}
+    # Afficher le dictionnaire
+    
+
+    
+    
+
     # Extract preferred foot
     preferred_foot_div = player_html.find("div", string="Pied préféré")
     if preferred_foot_div:
         preferred_foot_value = preferred_foot_div.find_next("div").text.strip()
         player_dict['preferred_foot'] = preferred_foot_value
-
     # Extract position
     position_div = player_html.find("div", string="Poste")
     if position_div:
         position_value = position_div.find_next("div").text.strip()
         player_dict['position'] = position_value
-    
+
     #extract taille
     taille = player_html.find("div", string="Taille" )
     if taille:
         taille = taille.find_next("div").text.strip()
-        player_dict['taille'] = taille
+        match = re.search(r"\d+", taille)
+        if match:
+            player_dict['taille'] = int(match.group())  # Convertir en entier
+        else:
+            player_dict['taille'] = None  # Pas de nombre trouvé
     else:
         player_dict['taille'] = None
-    
     #valeur actuelle 
     valeur_actuelle = player_html.find("div", class_="Text imGAlA")
     if valeur_actuelle:
@@ -138,13 +171,11 @@ def extract_player_info(player_url):
     else : 
         player_dict['valeur_actuelle'] = None
 
-    
-   
 
-    
+
     # Overall rating
     overall_rating = player_html.find("div", class_="Box klGMtt sc-eldPxv hizNAI animation-complete")
-    print(overall_rating)
+
     if overall_rating:
         span = overall_rating.find_next("span")
         potential_text = span.text.strip()  # Extract the text
@@ -152,14 +183,10 @@ def extract_player_info(player_url):
     else: 
         overall_rating = 5.0
         player_dict['Overall rating'] = overall_rating
-
-
-
     #total value
     sections = player_html.find_all("div", class_="Box kUyWOp")
     # Extraire les valeurs des potentiels
     potentiel_values = []
-
     for section in sections:
         try:
             divs = section.find_all("div")
@@ -170,67 +197,36 @@ def extract_player_info(player_url):
                     potentiel_values.append(value)
         except (ValueError, AttributeError):
             continue
-
     if potentiel_values:
         max_potentiel = max(potentiel_values)
-        print(max_potentiel)
+
         player_dict['potentiel max']= max_potentiel
     else: 
         max_potentiel = 5.0
         player_dict['potentiel max']= max_potentiel
 
 
-    # Vérification et calcul de la croissance (growth)
-    if max_potentiel is not None and overall_rating is not None:
-        growth = max_potentiel - overall_rating
-        player_dict['Growth'] = growth
-    else:
-        growth = 0
-        player_dict['Growth'] = growth
-
-
-    rows = player_html.find_all("div", class_=lambda c: c and "Box Flex BtElW eEu fCo" in c)
-
-    # Extraire les données
-    
-    for row in rows:
-        # Trouver la catégorie (ATT, TEC, etc.)
-        category = row.find("span", class_="Text VdZkrV").text.strip()
-        # Trouver la valeur associée
-        value = row.find("div", class_="Text jbnIiM").text.strip()
-        # Ajouter au dictionnaire
-        player_dict[category] = value
-
-    
-
-    
     #passe precision 
     passe_precision = player_html.find("span", string="Précision par match")
     if passe_precision:
         passe_precision = passe_precision.find_next("span").text.strip()
-        player_dict['passes_Précision'] = passe_precision
-
+        player_dict['passes_Precision'] = passe_precision
     #long passe
     long_passe = player_html.find("span", string="Précision longues passes")
     if long_passe:
         long_passe = long_passe.find_next("span").text.strip()
         player_dict['longue_passe'] = long_passe
-    
-    
 
-    
-    
+
+
+
     #Arrêts par match
     arrets = player_html.find("span", string="Arrêts par match")
     if arrets:
         arrets = arrets.find_next("span").text.strip()
-        player_dict['Arrêts_par_match'] = arrets
+        player_dict['Arrets_par_match'] = arrets
     else: 
-        player_dict["Arrêts_par_match"] = 0
-
-
-   
-    # Fill missing fields with None
+        player_dict["Arrets_par_match"] = 0
 
     return player_dict
 
@@ -244,15 +240,25 @@ for team_url in team_urls:
     players = extract_players_urls(team_url)
     all_players_urls[team_url] = players
     print(f"Found {len(players)} players for team: {team_url}")
+    all_keys = set()
     for player_url in players: 
-        players_info = extract_player_info(player_url)
-        print(f"player : {players_info}")
+        player_info = extract_player_info(player_url)
+        players_list.append(player_info)
+        #print(f"player : {player_info}")
+
+print(players_list)
+all_keys = set()
+for player in players_list:
+    all_keys.update(player.keys())
+
+
+with open(output_file, mode='w', newline='', encoding='utf-8') as csv_file:
+    writer = csv.DictWriter(csv_file, fieldnames=sorted(all_keys))
+    writer.writeheader()  # Écrire les en-têtes
+    for player in players_list:
+        writer.writerow(player)  # Remplir les valeurs manquantes avec None automatiquement
+
 
 
 driver.quit()
-
-# Print all players URLs for each team
-for team, players in all_players_urls.items():
-    print(f"\nTeam URL: {team}")
-    for player in players:
-        print(player)
+    

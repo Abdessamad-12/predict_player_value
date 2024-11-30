@@ -9,57 +9,59 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@CrossOrigin("*")
 @RestController
-@RequestMapping("api/v1/players")
+@RequestMapping("/api/players")
+@CrossOrigin(origins = "*")
 public class Playerscontroller {
 
     @Autowired
     private PlayersService playersService;
 
-    @Autowired
-    private PlayerRepository playerRepository;
 
     @GetMapping
     public List<Players> getAllPlayers() {
-        return playerRepository.findAll();
+        return playersService.getAllPlayers();
     }
 
-    @PostMapping
-    public Players createPlayer(@RequestBody Players players){
-        return playerRepository.save(players);
-    }
+
     @GetMapping("{id}")
-    public ResponseEntity<Players> getPlayerById(@PathVariable
-                                                     long id){
-        Players players = playerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Player not exist"));
-        return ResponseEntity.ok(players);
+    public ResponseEntity<Players> getPlayerById(@PathVariable long id){
+        return playersService.getPlayerById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+    @PostMapping("/import")
+    public ResponseEntity<?> importPlayersFromCsv(@RequestParam("file") MultipartFile file) {
+        try {
+            playersService.importPlayersFromCsv(file);
+            return ResponseEntity.ok().body("Players imported successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error importing players: " + e.getMessage());
+        }
+    }
+    @PostMapping
+    public ResponseEntity<Players> createPlayer(@RequestBody Players player) {
+        Players savedPlayer = playersService.savePlayer(player);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedPlayer);
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<Players> updatePlayer(@PathVariable long id,@RequestBody Players playerinfo){
-        Players updatePlayer = playerRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Player not exist"));
-        updatePlayer.setName(playerinfo.getName());
-        updatePlayer.setAge(playerinfo.getAge());
-        updatePlayer.setTeam(playerinfo.getTeam());
-
-        playerRepository.save(updatePlayer);
-
-        return ResponseEntity.ok(updatePlayer);
+    @PutMapping("/{id}")
+    public ResponseEntity<Players> updatePlayer(@PathVariable Long id, @RequestBody Players playerInfo) {
+        Players updatedPlayer = playersService.updatePlayer(id, playerInfo);
+        return ResponseEntity.ok(updatedPlayer);
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<HttpStatus> deletePlayer(@PathVariable long id){
-        Players player = playerRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Player not exist"));
-        playerRepository.delete(player);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePlayer(@PathVariable Long id) {
+        playersService.deletePlayer(id);
+        return ResponseEntity.noContent().build();
     }
+
+
     @PostMapping("/save")
     public ResponseEntity<Players> savePlayer(@RequestBody Players player) {
         Players savedPlayer = playersService.savePlayer(player);
