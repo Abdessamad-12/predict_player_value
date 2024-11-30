@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import logoImage from '../../Resources/images/logos/image.png';
+import logoImage from '../../Resources/images/logos/image2.png';
 
 
 export const CityLogo = (props) => {

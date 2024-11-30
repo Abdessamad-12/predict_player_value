@@ -1,6 +1,6 @@
 import React from 'react';
 import Zoom from 'react-reveal/Zoom';
-import Jersey from '../../../Resources/images/cf53e14eda0c43c41fe5624ec90cfcb658577205.jpg';
+import Jersey from '../../../Resources/images/logos/image6.png';
 
 const PromotionAnimation = () => {
     return (

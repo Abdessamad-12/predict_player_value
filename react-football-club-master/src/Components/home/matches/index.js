@@ -7,7 +7,7 @@ const MatchesHome = () => {
       <div className="home-matches-wrapper">
         <div className="container">
           <Tag
-            bck="#0e1731"
+            bck="#007A33"
             size="50px"
             color="#ffffff"
           >
@@ -19,11 +19,11 @@ const MatchesHome = () => {
           </Tag>
 
           <Tag
-            bck="#ffffff"
+            bck="#C1272D"
             size="22px"
-            color="#0e1731"
+            color="#007A33"
             link={true}
-            linkto="/the_team"
+            linkto="/the_matches"
           >
             See more matches
           </Tag>

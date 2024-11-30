@@ -14,7 +14,7 @@ export class Header extends Component {
         <AppBar
           position="fixed"
           style={{
-            backgroundColor: '#FF0000',
+            backgroundColor: '#1A1A1A',
             boxShadow: 'none',
             padding: '10px 0',
             borderBottom: '2px solid #00285e'
@@ -31,7 +31,7 @@ export class Header extends Component {
                   />
                 </div>
               </div>
-              <Link to="/the_matches">
+              <Link to="/">
                 <Button color="inherit">Home</Button>
               </Link>
 

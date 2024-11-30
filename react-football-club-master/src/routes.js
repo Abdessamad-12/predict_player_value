@@ -9,6 +9,7 @@ import Home from './Components/home';
 import SignIn from './Components/signin';
 import EditMatch from './Components/admin/matches/EditMatch'; // Chemin vers le fichier EditMatch
 import AdminPlayers from './Components/admin/players/AdminPlayers';
+import TeamDetails from './Components/team/TeamDetails'; // Chemin relatif au fichier
 
  
 import Dashboard from './Components/admin/Dashboard';
@@ -21,7 +22,9 @@ const Routes = (props) => {
       <Switch>
         <PublicRoutes {...props} restricted={false} path="/admin" exact component={Dashboard} />
         <PublicRoutes {...props} path="/admin_matches/edit_match" exact component={EditMatch} />
-
+        <Route path="/team" exact component={TeamPage} />
+        <Route path="/team/:id" component={TeamDetails} />
+        <Route path="/" exact component={Home} />
 
 
 

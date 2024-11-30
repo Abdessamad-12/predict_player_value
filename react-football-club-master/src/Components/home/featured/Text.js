@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { easePolyOut } from 'd3-ease';
 import Animate from 'react-move/Animate';
-import WydadLogo from '../../../Resources/images/logos/image2.png'; // Assurez-vous que le chemin est correct
+import WydadLogo from '../../../Resources/images/logos/image8.png'; // Assurez-vous que le chemin est correct
 
 class Text extends Component {
     animateNumber = () => (
@@ -23,10 +23,10 @@ class Text extends Component {
                         className="featured-number"
                         style={{
                             opacity,
-                            transform: `translate(260px,170px) rotateY(${rotate}deg)`,
+                            transform: `translate(260px, 170px) rotateY(${rotate}deg)`,
                         }}
                     >
-                        22
+                        
                     </div>
                 );
             }}
@@ -57,7 +57,7 @@ class Text extends Component {
                             transform: `translate(${x}px,${y}px)`,
                         }}
                     >
-                        Botola 
+                        BotolAi Pro
                     </div>
                 );
             }}
@@ -88,12 +88,57 @@ class Text extends Component {
                             transform: `translate(${x}px,${y}px)`,
                         }}
                     >
-                        Champions
+                        2024-2025
                     </div>
                 );
             }}
         </Animate>
     );
+
+    animateDescription = () => (
+        <Animate
+            show={true}
+            start={{
+                opacity: 0,
+                y: 200,
+            }}
+            enter={{
+                opacity: [1],
+                y: [100],
+                timing: { duration: 800, ease: easePolyOut },
+            }}
+        >
+            {({ opacity, y }) => {
+                return (
+                    <div
+                        className="featured-description"
+                        style={{
+                            opacity,
+                            transform: `translateY(${y}px)`,
+                            position: 'absolute',
+                            bottom: '20%', // Déplace le texte plus vers le bas
+                            left: '50%',
+                            transform: 'translate(-50%, 0)', // Centrage horizontal
+                            background: 'rgba(0, 0, 0, 0.7)', // Fond sombre semi-transparent
+                            padding: '30px',
+                            borderRadius: '15px',
+                            textAlign: 'center',
+                            color: '#ffffff', // Texte blanc
+                            fontSize: '22px', // Taille augmentée
+                            fontWeight: 'bold', // Texte en gras
+                            maxWidth: '600px',
+                            textShadow: '2px 2px 4px rgba(255, 255, 255, 0.8)', // Contour blanc
+                        }}
+                    >
+                        BotolAi Pro utilise l'intelligence artificielle pour estimer les valeurs des joueurs marocains,
+                        optimisée pour la ligue Botola Pro. Découvrez les talents du football marocain, soit pour les
+                        clubs nationaux, soit pour les clubs internationaux.
+                    </div>
+                );
+            }}
+        </Animate>
+    );
+    
 
     animatePlayer = () => (
         <Animate
@@ -112,20 +157,18 @@ class Text extends Component {
                         className="featured-player"
                         style={{
                             opacity,
-                            width: '500px', // Taille du logo
-                            height: '500px', // Taille du logo
+                            width: '410px', // Taille du logo
+                            height: '410px', // Taille du logo
                             background: `url(${WydadLogo}) no-repeat center`,
                             backgroundSize: 'contain',
-                            transform: `translate(750px, 150px)`, // Position ajustée
+                            transform: `translate(50px, 80px)`, // Position ajustée
                         }}
                     ></div>
                 );
             }}
         </Animate>
     );
-    
-    
-    
+
     render() {
         return (
             <div className="featured-text">
@@ -133,10 +176,10 @@ class Text extends Component {
                 {this.animateNumber()}
                 {this.animateFirst()}
                 {this.animateSecond()}
+                {this.animateDescription()}
             </div>
         );
     }
 }
 
 export default Text;
-

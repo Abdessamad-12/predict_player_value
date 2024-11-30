@@ -7,26 +7,27 @@ class Stripes extends Component {
     state = {
         stripes: [
             {
-                background: '#ff0000', // Rouge (Wydad)
+                background: '#C1272D', // Rouge (Wydad)
                 left: 120,
                 rotate: 25,
                 top: -260,
                 delay: 0
             },
             {
-                background: '#ffffff', // Blanc
+                background: '#007A33', // Blanc
                 left: 360,
                 rotate: 25,
                 top: -397,
                 delay: 200
             },
             {
-                background: '#ff0000', // Rouge (Wydad)
+                background: '#C1272D', // Rouge (Wydad)
                 left: 600,
                 rotate: 25,
                 top: -498,
                 delay: 400
-            }
+            },
+
         ]
     };
 
@@ -36,7 +37,7 @@ class Stripes extends Component {
                 key={i}
                 show={true}
                 start={{
-                    background: '#ffffff',
+                    background: '#ff0000',
                     opacity: 0,
                     left: 0,
                     rotate: 0,

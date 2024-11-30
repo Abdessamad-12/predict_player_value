@@ -36,7 +36,7 @@ class MeetPlayers extends Component {
               <div className="home-text-wrapper">
                 <div>
                   <Tag
-                    bck="#0e1731"
+                    bck="#007A33"
                     size="100px"
                     color="#ffffff"
                     add={{
@@ -49,7 +49,7 @@ class MeetPlayers extends Component {
                 </div>
                 <div>
                   <Tag
-                    bck="#0e1731"
+                    bck="#007A33"
                     size="100px"
                     color="#ffffff"
                     add={{
@@ -62,7 +62,7 @@ class MeetPlayers extends Component {
                 </div>
                 <div>
                   <Tag
-                    bck="#0e1731"
+                    bck="#007A33"
                     size="100px"
                     color="#ffffff"
                     add={{
@@ -75,9 +75,9 @@ class MeetPlayers extends Component {
                 </div>
                 <div>
                   <Tag
-                    bck="#ffffff"
+                    bck="#C1272D"
                     size="27px"
-                    color="#0e1731"
+                    color="#007A33"
                     link={true}
                     linkto="/the_team"
                     add={{
